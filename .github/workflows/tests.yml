@@ -2,7 +2,9 @@ name: Tests
 
 run-name: '🧪 Test changes'
 
-on: push
+on: 
+  push:
+  workflow_call:
 
 permissions:
   actions: 'read'

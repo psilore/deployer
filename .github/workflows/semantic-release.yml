@@ -39,7 +39,7 @@ jobs:
         uses: cycjimmy/semantic-release-action@c4a2fa890676fc2db25ad0aacd8ab4a0f1f4c024
         id: semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_USER_PAT }}
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
         with:
           semantic_version: v24.2.1
           extra_plugins: |

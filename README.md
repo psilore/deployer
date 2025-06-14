@@ -17,7 +17,7 @@
    gh workflow run deployer-pull-request.yml
    ```
 
-2. Goto [Pull requests](https://github.com/orgs/extrapreneur/eo-deployer/pulls) and wait until pull request is created
+2. Goto [Pull requests](https://github.com/psilore/deployer/pulls) and wait until pull request is created
 3. Open pull request `chore(ci): repo deployment` and select which repositories to deploy
 4. Wait until list of repositories is created
 5. Click `Squash and merge`
