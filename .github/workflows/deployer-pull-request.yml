@@ -85,10 +85,10 @@ jobs:
               if [[ -z "$UPDATED_DATE" ]]; then
                 LAST_DEPLOY="never"
               else
-                LAST_DEPLOY=$(date -d "$UPDATED_DATE" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$UPDATED_DATE")
+                LAST_DEPLOY=$(date -d "$UPDATED_DATE" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$UPDATED_DATE UTC")
               fi
             fi
-            echo "- [ ] $repo (Last deploy: $DATE UTC)" >> pr_body.md
+            echo "- [ ] $repo (Last deploy: $LAST_DEPLOY)" >> pr_body.md
           done < config/active_repositories.txt
 
       - name: Check if branch exists
