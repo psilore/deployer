@@ -36,7 +36,7 @@ jobs:
         uses: rlespinasse/github-slug-action@955b5ba4560860f8a633bd24190941f16016e42c
 
       - name: Semanitic Release
-        uses: cycjimmy/semantic-release-action@0a51e81a6baff2acad3ee88f4121c589c73d0f0e
+        uses: cycjimmy/semantic-release-action@c4a2fa890676fc2db25ad0aacd8ab4a0f1f4c024
         id: semantic-release
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
