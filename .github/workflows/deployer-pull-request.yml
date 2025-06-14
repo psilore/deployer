@@ -77,7 +77,7 @@ jobs:
           echo "### 🦑 Deployer" > pr_body.md
           echo "Select which repository to deploy:" >> pr_body.md
           while read -r repo; do
-            UPDATED_DATE=$(gh run list --repo "$repo" -w deploy.yml --limit 1 --json updatedAt -q '.[0].updatedAt' 2>/dev/null)
+            UPDATED_DATE=$(gh run list -R "https://github.com/$OWNER/$repo" -w "deploy.yml" --limit 1 --json updatedAt -q '.[0].updatedAt' 2>/dev/null)
             DATE=$(date -d "$UPDATED_DATE" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$UPDATED_DATE")
             if [[ -z "$UPDATED_DATE" ]]; then
               UPDATED_DATE="never"
