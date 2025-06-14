@@ -1,0 +1,18 @@
+{
+  "name": "deployer",
+  "version": "1.0.0",
+  "description": "Deploy repositories or a single repository with a shell command or pull request.",
+  "scripts": {
+    "prepare": "husky",
+    "commitlint": "commitlint --edit"
+  },
+  "author": "Erik Emmerfors",
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "husky": "^9.0.11"
+  }
+}

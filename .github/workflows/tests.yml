@@ -1,0 +1,46 @@
+name: Tests
+
+run-name: '🧪 Test changes'
+
+on: push
+
+permissions:
+  actions: 'read'
+  security-events: 'write'
+  contents: 'write'
+  checks: 'write'
+  issues: 'write'
+  pull-requests: 'write'
+
+jobs:
+  validate-commits:
+    name: Validate Commits
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Commmit lint
+        uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed
+        with:
+          configFile: 'commitlint.config.cjs'
+          failOnErrors: true
+          failOnWarnings: false
+
+  code-ql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up CodeQL
+        uses: github/codeql-action/init@b1e4dc3db58c9601794e22a9f6d28d45461b9dbf
+        with:
+          languages: 'actions'
+
+      - name: Run CodeQL
+        uses: github/codeql-action/analyze@b1e4dc3db58c9601794e22a9f6d28d45461b9dbf
+        with:
+          category: 'security'
+          output: 'security-queries.sarif'

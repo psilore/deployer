@@ -1,0 +1,57 @@
+name: Deployer DISP
+
+run-name: '🦑 Deployer disptach'
+
+on: 
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+env:
+  BRANCH_NAME: 'deployer-repo-checklist'
+
+permissions:
+  actions: 'read'
+  security-events: 'write'
+  contents: 'write'
+  checks: 'write'
+  issues: 'write'
+  pull-requests: 'write'
+
+jobs:
+  dispatcher:
+    name: Dispatcher
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ secrets.GIT_USER }}"
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+      
+      - name: Dispatch workflow to repos in PR list
+        run: |
+          while read -r repo; do
+            echo "Dispatching workflow to $repo"
+            # gh workflow run deploy.yml --repo extrapreneur/$repo
+          done < latest_deployed_repos.txt
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
+
+      - name: Label merged PR
+        run: |
+          DATE_NOW=$(date +%Y-%m-%d)
+          LABEL_NAME="deployed-$DATE_NOW"
+          COLOR="#5f9b86"
+          if ! gh label list --repo "${{ github.repository }}" | grep -q "^$LABEL_NAME\b"; then
+            gh label create "$LABEL_NAME" --color "$COLOR" --description "Deployment complete" --repo "${{ github.repository }}"
+          fi
+          PR_NUMBER=$(gh pr list --state merged --head "${{ env.BRANCH_NAME }}" --json number -q '.[0].number')
+          gh pr edit "$PR_NUMBER" --add-label "$LABEL_NAME" --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}

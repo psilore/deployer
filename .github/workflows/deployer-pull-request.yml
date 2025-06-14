@@ -1,0 +1,143 @@
+name: Deployer PR
+
+run-name: '🦑 Deployer pull request'
+
+on: 
+  workflow_dispatch:
+    inputs:
+      team_slug:
+        description: 'Team slug to fetch repositories from and generate checklist'
+        required: true
+
+  pull_request:
+    types: [edited]
+    branches:
+      - main
+env:
+  BRANCH_NAME: 'deployer-repo-checklist'
+  OWNER: ${{ github.repository_owner }}
+  TEAM_SLUG: ${{ github.event.inputs.team_slug }}
+
+permissions:
+  actions: 'read'
+  security-events: 'write'
+  contents: 'write'
+  checks: 'write'
+  issues: 'write'
+  pull-requests: 'write'
+
+jobs:
+  deploy-request:
+    name: Deploy request
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ secrets.GIT_USER }}"
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+
+      - name: Check if pr_body.md exists
+        id: check-pr-body
+        run: |
+          if [ -f pr_body.md ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get active repositories
+        id: get-active-repos
+        if: steps.check-pr-body.outputs.exists == 'false'
+        run: |
+          mkdir -p config
+          touch config/active_repositories.txt
+          REPO_LIST="config/active_repositories.txt"
+          URL="orgs/${{ env.OWNER }}/teams/${{ env.TEAM_SLUG }}/repos"
+          ACTIVE_REPOS=$(gh api "$URL" 2>&1)
+          if [[ $? -ne 0 ]]; then
+            echo "Error fetching repositories: $ACTIVE_REPOS"
+            exit 1
+          fi
+          REPO_NAMES=$(echo "$ACTIVE_REPOS" | jq -r '.[].name' 2>&1)
+          if [[ $? -ne 0 ]]; then
+            echo "Error parsing repository names: $REPO_NAMES"
+            exit 1
+          fi
+          echo "$REPO_NAMES" > "$REPO_LIST"
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
+
+      - name: Generate repository list with checkboxes
+        id: gen-list
+        if: steps.check-pr-body.outputs.exists == 'false'
+        run: |
+          echo "### 🦑 Deployer" > pr_body.md
+          echo "Select which repository to deploy:" >> pr_body.md
+          while read -r repo; do
+            echo "- [ ] $repo" >> pr_body.md
+          done < config/active_repositories.txt
+
+      - name: Check if branch exists
+        id: create-pr-branch
+        run: |
+          if git ls-remote --exit-code --heads origin $BRANCH_NAME; then
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "branch_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request with checklist
+        if: steps.create-pr-branch.outputs.branch_exists == 'false'
+        id: create-pr
+        run: |
+          git checkout -b ${{ env.BRANCH_NAME }}
+          git add pr_body.md config/active_repositories.txt
+          git commit -m "chore: add repository configuration checklist"
+          git push origin ${{ env.BRANCH_NAME }}
+          gh pr create \
+            --base main \
+            --head ${{ env.BRANCH_NAME }} \
+            --title "chore(ci): repo deployment" \
+            --body-file pr_body.md
+          [ -f pr_body.md ] && rm pr_body.md
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
+
+      - name: Add random color label to PR
+        if: steps.create-pr-branch.outputs.branch_exists == 'false'
+        run: |
+          LABEL_NAME="deployment"
+          COLOR="#f432b7"
+          # Check if label exists
+          if ! gh label list --repo "${{ github.repository }}" | grep -q "^$LABEL_NAME\b"; then
+            gh label create "$LABEL_NAME" --color "$COLOR" --description "Deployer pull request" --repo "${{ github.repository }}"
+          fi
+          PR_NUMBER=$(gh pr list --state open --head "${{ env.BRANCH_NAME }}" --json number -q '.[0].number')
+          gh pr edit "$PR_NUMBER" --add-label "$LABEL_NAME" --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
+
+      - name: Update PR
+        if: steps.create-pr-branch.outputs.branch_exists == 'true'
+        run: |
+          [ -f latest_deployed_repos.txt ] && rm latest_deployed_repos.txt
+          [ -f pr_body.md ] && rm pr_body.md
+          git fetch origin ${{ env.BRANCH_NAME }}
+          git checkout ${{ env.BRANCH_NAME }}
+          PR_NUMBER=$(gh pr list --state open --search "${{ env.BRANCH_NAME }}" --json number -q '.[0].number')
+          gh pr view $PR_NUMBER --json body -q '.body' > pr_body.txt
+          grep '^- \[x\]' pr_body.txt | sed -E 's/^- \[x\] //' > latest_deployed_repos.txt
+          rm pr_body.txt
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update checked repositories list"
+            git pull --rebase origin ${{ env.BRANCH_NAME }}
+            git push origin ${{ env.BRANCH_NAME }}
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
