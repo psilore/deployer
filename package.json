@@ -8,6 +8,11 @@
   },
   "author": "Erik Emmerfors",
   "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/psilore/deployer.git"
+  },
   "dependencies": {
   },
   "devDependencies": {
