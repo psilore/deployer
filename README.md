@@ -9,12 +9,12 @@
   <br />
 </p>
 
-## Create a deployment
+## Create a batch deployment
 
 1. Dispatch workflow `deployer-pull-request.yml`
 
    ```bash
-   gh workflow run deployer-pull-request.yml -f team_slug=<team-slug>
+   gh workflow run deployer-pull-request.yml -f team_slug="<team-slug>"
    ```
 
 2. Goto **"Pull requests"** tab in GitHub and wait until pull request is created
