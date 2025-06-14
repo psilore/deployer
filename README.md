@@ -18,7 +18,7 @@
    ```
 
 2. Goto **"Pull requests"** tab in GitHub and wait until pull request is created
-3. Open pull request `chore(ci): repo deployment` and select which repositories to deploy
+3. Open pull request `chore(cd): repo deployment` and select which repositories to deploy
 4. Wait until list of repositories is created
 5. Click `Squash and merge`
 6. Wait for all selected repositories to be deployed, label with date deployed is added to closed pull request

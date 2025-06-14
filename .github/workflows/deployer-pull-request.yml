@@ -100,7 +100,7 @@ jobs:
           gh pr create \
             --base main \
             --head ${{ env.BRANCH_NAME }} \
-            --title "chore(ci): repo deployment" \
+            --title "chore(cd): repo deployment" \
             --body-file pr_body.md
           [ -f pr_body.md ] && rm pr_body.md
         env:
