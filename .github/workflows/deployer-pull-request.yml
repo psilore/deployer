@@ -130,7 +130,9 @@ jobs:
           git checkout ${{ env.BRANCH_NAME }}
           PR_NUMBER=$(gh pr list --state open --search "deployer" --json number -q '.[0].number')
           gh pr view $PR_NUMBER --json body -q '.body' > pr_body.txt
-          grep '^- \[x\]' pr_body.txt | sed -E 's/^- \[x\] ([^ ]+).*/\1/' > latest_deployed_repos.txt
+          SHORT_BATCH_ID=$(grep '^ID:' pr_body.txt | awk '{print $2}')
+          LATEST_DEPLOYED_FILE="latest_deployed_repos_${SHORT_BATCH_ID}.txt"
+          grep '^- \[x\]' pr_body.txt | sed -E 's/^- \[x\] ([^ ]+).*/\1/' > $LATEST_DEPLOYED_FILE
           rm pr_body.txt
           git add .
           if git diff --cached --quiet; then

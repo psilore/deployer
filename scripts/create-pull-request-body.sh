@@ -69,6 +69,8 @@ setup_pr_body() {
   fi
   { 
     printf "### 🦑 Deployer\n\n"
+    generate_batch_id
+    printf "ID: %s\n\n" "$SHORT_BATCH_ID"
     printf "Select which repository to deploy:\n\n"
 
   } > "$PR_BODY_FILE"
@@ -105,7 +107,14 @@ append_checklist() {
       echo "- [ ] $repo (Last deploy: $RELATIVE_HUMAN)" >> "$PR_BODY_FILE"
     fi
   done < "$REPOS_FILE"
+}
 
+generate_batch_id() {
+  local BATCH_ID
+  BATCH_ID=$(uuidgen -r)
+
+  SHORT_BATCH_ID="${BATCH_ID//-/}"
+  SHORT_BATCH_ID="${SHORT_BATCH_ID:0:10}"
 }
 
 setup() {
