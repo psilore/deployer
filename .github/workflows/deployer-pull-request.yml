@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir -p config
           touch config/active_repositories.txt
-          REPO_LIST="config/active_repositories.txt"
+          Get active repositories"config/active_repositories.txt"
           URL="orgs/${{ env.OWNER }}/teams/${{ env.TEAM_SLUG }}/repos"
           ACTIVE_REPOS=$(gh api "$URL" 2>&1)
           if [[ $? -ne 0 ]]; then
@@ -124,7 +124,6 @@ jobs:
       - name: Update PR
         if: steps.create-pr-branch.outputs.branch_exists == 'true'
         run: |
-          [ -f latest_deployed_repos.txt ] && rm latest_deployed_repos.txt
           [ -f pr_body.md ] && rm pr_body.md
           git fetch origin ${{ env.BRANCH_NAME }}
           git checkout ${{ env.BRANCH_NAME }}
