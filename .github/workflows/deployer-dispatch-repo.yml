@@ -87,7 +87,7 @@ jobs:
     steps:
       - name: Create summary
         run: |
-          PR_URL="https://github.com/${{ env.OWNER }}/${{ github.event.repository.name }}/pulls/${{ needs.dispatcher.outputs.pr_number }}"
+          PR_URL="https://github.com/${{ env.OWNER }}/${{ github.event.repository.name }}/pull/${{ needs.dispatcher.outputs.pr_number }}"
           echo "## 🦑 Deployed" > summary.md
           echo "Repositories from the latest PR merge" >> summary.md
           echo "### Batch ID: [${{ needs.dispatcher.outputs.batch_id }}]($PR_URL)" >> summary.md
