@@ -1,6 +1,6 @@
 name: Deployer DISP
 
-run-name: '🦑 Deployer disptach'
+run-name: '🦑 Deployer dispatch'
 
 on: 
   workflow_dispatch:
@@ -11,6 +11,8 @@ on:
 
 env:
   BRANCH_NAME: 'deployer-repo-checklist'
+  OWNER: ${{ github.repository_owner }}
+  TEAM_SLUG: ${{ github.event.inputs.team_slug }}
 
 permissions:
   actions: 'read'
@@ -38,7 +40,7 @@ jobs:
         run: |
           while read -r repo; do
             echo "Dispatching workflow to $repo"
-            # gh workflow run deploy.yml --repo extrapreneur/$repo
+            # gh workflow run deploy.yml --repo ${{ env.OWNER }}/$repo
           done < latest_deployed_repos.txt
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
@@ -55,3 +57,33 @@ jobs:
           gh pr edit "$PR_NUMBER" --add-label "$LABEL_NAME" --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
+  summary:
+    name: Summary
+    runs-on: ubuntu-24.04
+    needs: dispatcher
+    steps:
+
+      - name: Check if latest_deployed_repos.txt exists
+        id: check-latest-repos
+        run: |
+          if [ -f latest_deployed_repos.txt ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Create summary
+        run: |
+          if [ "${{ steps.check-latest-repos.outputs.exists }}" != "true" ]; then
+            echo "No repositories found in latest_deployed_repos.txt"
+            exit 1
+          else
+            echo "## 🦑 Deployed" > summary.md
+            echo "Repositories from the latest PR merge" >> summary.md
+            echo "### Repositories:" >> summary.md
+            echo "" >> summary.md
+            echo "| Repository |" >> summary.md
+            echo "|------------|" >> summary.md
+            while read -r repo; do
+              echo "| $repo |" >> summary.md
+            done < latest_deployed_repos.txt
+          fi
