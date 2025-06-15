@@ -89,7 +89,12 @@ jobs:
                 LAST_DEPLOY=$(date -d "$UPDATED_DATE" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$UPDATED_DATE UTC")
               fi
             fi
-            echo "- [ ] $repo (Last deploy: $LAST_DEPLOY)" >> pr_body.md
+            if [[ "$LAST_DEPLOY" == "workflow not found" ]]; then
+              NOTE=""
+            else
+              NOTE="(Last deploy: $LAST_DEPLOY)"
+            fi
+            echo "- [ ] $repo $NOTE" >> pr_body.md
           done < config/active_repositories.txt
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
