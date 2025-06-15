@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       repos: ${{ steps.dispatch.outputs.repos }}
+      batch_id: ${{ steps.dispatch.outputs.batch_id }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -39,12 +40,17 @@ jobs:
       - name: Dispatch workflow to repos in PR list
         id: dispatch
         run: |
-          while read -r repo; do
-            echo "Dispatching workflow to $repo"
-            # gh workflow run deploy.yml --repo ${{ env.OWNER }}/$repo
-          done < latest_deployed_repos.txt
-          REPOS=$(paste -sd, latest_deployed_repos.txt)
-          echo "repos=$REPOS" >> $GITHUB_OUTPUT
+          for file in latest_deployed_repos-*.txt; do
+            [ -e "$file" ] || { echo "No deployed repos file found"; exit 1; }
+            BATCH_ID="${file##*-}"
+            BATCH_ID="${BATCH_ID%.txt}"
+            while read -r repo; do
+              echo "Dispatching workflow to $repo"
+              # gh workflow run deploy.yml --repo ${{ env.OWNER }}/$repo
+            done < "$file"
+            REPOS=$(paste -sd, "$file")
+            echo "repos=$REPOS" >> $GITHUB_OUTPUT
+            echo "batch_id=$BATCH_ID" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
       - name: Label merged PR
@@ -68,6 +74,7 @@ jobs:
         run: |
           echo "## 🦑 Deployed" > summary.md
           echo "Repositories from the latest PR merge" >> summary.md
+          echo "## Batch ID: ${{ needs.dispatcher.outputs.batch_id }}" >> summary.md
           echo "### Repositories:" >> summary.md
           echo "" >> summary.md
           echo "| Repository |" >> summary.md
