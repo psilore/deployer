@@ -1,3 +1,17 @@
+## [1.1.0](https://github.com/psilore/deployer/compare/v1.0.0...v1.1.0) (2025-06-15)
+
+### :sparkles: New Features
+
+* add docs ([a595d41](https://github.com/psilore/deployer/commit/a595d41539a700d3530432170ebd1a52a734f8c9))
+* add relative dates to deploys in checklist ([#7](https://github.com/psilore/deployer/issues/7)) ([ab24c0a](https://github.com/psilore/deployer/commit/ab24c0a8c40413c235a29ffb96f8cc62e3db9cb6))
+* add updated date ([#4](https://github.com/psilore/deployer/issues/4)) ([8912ed0](https://github.com/psilore/deployer/commit/8912ed0a92fb704a03f0e6a5fe675f47594b3e88))
+
+### :bug: Bug Fixes
+
+* add env owner ([ae324df](https://github.com/psilore/deployer/commit/ae324dfd835b9c510f15c142ca5f3536e0f8c679))
+* add workflow name ([a0282ab](https://github.com/psilore/deployer/commit/a0282abe1577dba0080254dc178cd85ae1d2d354))
+* repo url ([443b3af](https://github.com/psilore/deployer/commit/443b3af5daefec2f4215da4efb9f6e07d0b6bc06))
+
 ## 1.0.0 (2025-06-14)
 
 ### :sparkles: New Features
