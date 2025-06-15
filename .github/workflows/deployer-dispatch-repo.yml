@@ -76,3 +76,7 @@ jobs:
             echo "| $repo |" >> summary.md
           done
           echo "" >> summary.md
+      - name: Render summary
+        run: |
+          SUMMARY=$(cat summary.md)
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
