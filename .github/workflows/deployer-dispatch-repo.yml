@@ -12,7 +12,6 @@ on:
 env:
   BRANCH_NAME: 'deployer-repo-checklist'
   OWNER: ${{ github.repository_owner }}
-  TEAM_SLUG: ${{ github.event.inputs.team_slug }}
 
 permissions:
   actions: 'read'
