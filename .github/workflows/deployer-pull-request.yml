@@ -74,28 +74,9 @@ jobs:
         id: gen-list
         if: steps.check-pr-body.outputs.exists == 'false'
         run: |
-          echo "### 🦑 Deployer" > pr_body.md
-          echo "Select which repository to deploy:" >> pr_body.md
-          while read -r repo; do
-            WORKFLOW=$(gh api repos/${{ env.OWNER }}/$repo/actions/workflows --jq '.workflows[] | select(.path | endswith("/deploy.yml")) | .name' | head -n1)
-            if [[ -z "$WORKFLOW" ]]; then
-              LAST_DEPLOY="workflow not found"
-            else
-              LC_WORKFLOW=$(echo "$WORKFLOW" | tr '[:upper:]' '[:lower:]')
-              UPDATED_DATE=$(gh run list -R "https://github.com/${{ env.OWNER }}/$repo" -w "$LC_WORKFLOW.yml" --limit 1 --json updatedAt -q '.[0].updatedAt' 2>/dev/null)
-              if [[ -z "$UPDATED_DATE" ]]; then
-                LAST_DEPLOY="never"
-              else
-                LAST_DEPLOY=$(date -d "$UPDATED_DATE" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$UPDATED_DATE UTC")
-              fi
-            fi
-            if [[ "$LAST_DEPLOY" == "workflow not found" ]]; then
-              NOTE=""
-            else
-              NOTE="(Last deploy: $LAST_DEPLOY)"
-            fi
-            echo "- [ ] $repo $NOTE" >> pr_body.md
-          done < config/active_repositories.txt
+          sudo apt update
+          sudo apt install -y dateutils
+          bash scripts/create-pull-request-body.sh -o "${{ env.OWNER }}" -t "${{ env.TEAM_SLUG }}"
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
 
