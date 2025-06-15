@@ -49,3 +49,19 @@ stateDiagram-v2
     mpr --> dsp: closed
     dsp --> [*]:workflow_dispatch
 ```
+
+## Dispatch deployment
+
+Selected repositories with workflow `deploy.yml` will automatically start deploy.
+
+### Closed pull request
+
+Once deployment is complete, the closed pull request is labeled with id for the deployment.
+
+![Closed pull request](docs/images/deployed-closed-pr.png)
+
+### Summary
+
+Summary for each batch with a link back to pull request that iniated the deployment.
+
+![Link to pull request](docs/images/deployment-id-pr.png)
