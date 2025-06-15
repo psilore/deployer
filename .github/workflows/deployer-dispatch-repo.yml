@@ -29,6 +29,7 @@ jobs:
     outputs:
       repos: ${{ steps.dispatch.outputs.repos }}
       batch_id: ${{ steps.dispatch.outputs.batch_id }}
+      pr_number: ${{ steps.dispatch.outputs.pr_number }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -66,6 +67,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
       - name: Label merged PR with batch ID
+        id: label-batch-id
         run: |
           BATCH_LABEL="id-${{ steps.dispatch.outputs.batch_id }}"
           COLOR="#f38126"
@@ -75,6 +77,7 @@ jobs:
           fi
           PR_NUMBER=$(gh pr list --state merged --head "${{ env.BRANCH_NAME }}" --json number -q '.[0].number')
           gh pr edit "$PR_NUMBER" --add-label "$BATCH_LABEL" --repo "${{ github.repository }}"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
   summary:
@@ -84,8 +87,7 @@ jobs:
     steps:
       - name: Create summary
         run: |
-          PR_NUMBER=$(gh pr list --state merged --head "${{ env.BRANCH_NAME }}" --json number -q '.[0].number')
-          PR_URL="https://github.com/${{ env.OWNER }}/${{ github.event.repository.name }}/pulls/$PR_NUMBER"
+          PR_URL="https://github.com/${{ env.OWNER }}/${{ github.event.repository.name }}/pulls/${{ needs.dispatcher.outputs.pr_number }}"
           echo "## 🦑 Deployed" > summary.md
           echo "Repositories from the latest PR merge" >> summary.md
           echo "### Batch ID: [${{ needs.dispatcher.outputs.batch_id }}]($PR_URL)" >> summary.md
