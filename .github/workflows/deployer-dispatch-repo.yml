@@ -84,9 +84,11 @@ jobs:
     steps:
       - name: Create summary
         run: |
+          PR_NUMBER=$(gh pr list --state merged --head "${{ env.BRANCH_NAME }}" --json number -q '.[0].number')
+          PR_URL="https://github.com/${{ env.OWNER }}/${{ github.event.repository.name }}/pulls/$PR_NUMBER"
           echo "## 🦑 Deployed" > summary.md
           echo "Repositories from the latest PR merge" >> summary.md
-          echo "## Batch ID: ${{ needs.dispatcher.outputs.batch_id }}" >> summary.md
+          echo "## Batch ID: [${{ needs.dispatcher.outputs.batch_id }}]($PR_URL)" >> summary.md
           echo "### Repositories:" >> summary.md
           echo "" >> summary.md
           echo "| Repository |" >> summary.md
@@ -95,6 +97,8 @@ jobs:
             echo "| $repo |" >> summary.md
           done
           echo "" >> summary.md
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
       - name: Render summary
         run: |
           SUMMARY=$(cat summary.md)
