@@ -65,6 +65,18 @@ jobs:
           gh pr edit "$PR_NUMBER" --add-label "$LABEL_NAME" --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
+      - name: Label merged PR with batch ID
+        run: |
+          BATCH_LABEL="id-${{ steps.dispatch.outputs.batch_id }}"
+          COLOR="#f38126"
+          # Create the label if it doesn't exist
+          if ! gh label list --repo "${{ github.repository }}" | grep -q "^$BATCH_LABEL\b"; then
+            gh label create "$BATCH_LABEL" --color "$COLOR" --description "Batch deployment ID" --repo "${{ github.repository }}"
+          fi
+          PR_NUMBER=$(gh pr list --state merged --head "${{ env.BRANCH_NAME }}" --json number -q '.[0].number')
+          gh pr edit "$PR_NUMBER" --add-label "$BATCH_LABEL" --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
   summary:
     name: Summary
     runs-on: ubuntu-24.04
