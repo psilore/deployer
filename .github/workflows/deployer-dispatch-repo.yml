@@ -39,7 +39,7 @@ jobs:
       - name: Dispatch workflow to repos in PR list
         id: dispatch
         run: |
-          for file in latest_deployed_repos-*.txt; do
+          for file in deployments/latest_deployed_repos-*.txt; do
             [ -e "$file" ] || { echo "No deployed repos file found"; exit 1; }
             BATCH_ID="${file##*-}"
             BATCH_ID="${BATCH_ID%.txt}"
