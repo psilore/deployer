@@ -45,11 +45,12 @@ jobs:
             BATCH_ID="${BATCH_ID%.txt}"
             while read -r repo; do
               echo "Dispatching workflow to $repo"
-              # gh workflow run deploy.yml --repo ${{ env.OWNER }}/$repo
+              # gh workflow run deploy.yml --repo extrapreneur/$repo
             done < "$file"
             REPOS=$(paste -sd, "$file")
             echo "repos=$REPOS" >> $GITHUB_OUTPUT
             echo "batch_id=$BATCH_ID" >> $GITHUB_OUTPUT
+          done
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
       - name: Label merged PR
