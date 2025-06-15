@@ -77,7 +77,7 @@ jobs:
           echo "### 🦑 Deployer" > pr_body.md
           echo "Select which repository to deploy:" >> pr_body.md
           while read -r repo; do
-            WORKFLOW=$(gh api repos/${{ env.OWNER }}/$repo/actions/workflows --jq '.workflows[] | select(.path | endswith("/deploy.yml")) | .name' 2>/dev/null | head -n1)
+            WORKFLOW=$(gh api repos/${{ env.OWNER }}/$repo/actions/workflows --jq '.workflows[] | select(.path | endswith("/deploy.yml")) | .name' | head -n1)
             if [[ -z "$WORKFLOW" ]]; then
               LAST_DEPLOY="workflow not found"
             else
@@ -91,6 +91,8 @@ jobs:
             fi
             echo "- [ ] $repo (Last deploy: $LAST_DEPLOY)" >> pr_body.md
           done < config/active_repositories.txt
+          cat pr_body.md
+          exit 0
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
 
