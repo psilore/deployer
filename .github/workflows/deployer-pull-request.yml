@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir -p config
           touch config/active_repositories.txt
-          Get active repositories"config/active_repositories.txt"
+          REPO_LIST="config/active_repositories.txt"
           URL="orgs/${{ env.OWNER }}/teams/${{ env.TEAM_SLUG }}/repos"
           ACTIVE_REPOS=$(gh api "$URL" 2>&1)
           if [[ $? -ne 0 ]]; then
