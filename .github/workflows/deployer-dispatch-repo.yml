@@ -27,6 +27,8 @@ jobs:
     name: Dispatcher
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-24.04
+    outputs:
+      repos: ${{ steps.dispatch.outputs.repos }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -35,18 +37,16 @@ jobs:
           git config --global user.name "${{ secrets.GIT_USER }}"
           git config --global user.email "${{ secrets.GIT_EMAIL }}"
       - name: Dispatch workflow to repos in PR list
+        id: dispatch
         run: |
           while read -r repo; do
             echo "Dispatching workflow to $repo"
             # gh workflow run deploy.yml --repo ${{ env.OWNER }}/$repo
           done < latest_deployed_repos.txt
+          REPOS=$(paste -sd, latest_deployed_repos.txt)
+          echo "repos=$REPOS" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GIT_USER_PAT }}
-      - name: Upload latest_deployed_repos.txt
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: latest_deployed_repos
-          path: ./latest_deployed_repos.txt
       - name: Label merged PR
         run: |
           DATE_NOW=$(date +%Y-%m-%d)
@@ -64,28 +64,15 @@ jobs:
     runs-on: ubuntu-24.04
     needs: dispatcher
     steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Download latest_deployed_repos.txt
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: latest_deployed_repos
-          path: ./latest_deployed_repos.txt
       - name: Create summary
         run: |
-          if [ -f latest_deployed_repos.txt ]; then
-            echo "File not found: latest_deployed_repos.txt"
-            echo "## ❌ Deployment failed" > summary.md
-            exit 1
-          else
-            echo "## 🦑 Deployed" > summary.md
-            echo "Repositories from the latest PR merge" >> summary.md
-            echo "### Repositories:" >> summary.md
-            echo "" >> summary.md
-            echo "| Repository |" >> summary.md
-            echo "|------------|" >> summary.md
-            while read -r repo; do
-              echo "| $repo |" >> summary.md
-            done < latest_deployed_repos.txt
-          fi
+          echo "## 🦑 Deployed" > summary.md
+          echo "Repositories from the latest PR merge" >> summary.md
+          echo "### Repositories:" >> summary.md
+          echo "" >> summary.md
+          echo "| Repository |" >> summary.md
+          echo "|------------|" >> summary.md
+          for repo in $(echo "${{ needs.dispatcher.outputs.repos }}" | tr ',' '\n'); do
+            echo "| $repo |" >> summary.md
+          done
+          echo "" >> summary.md
