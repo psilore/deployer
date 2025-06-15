@@ -63,18 +63,13 @@ jobs:
     needs: dispatcher
     steps:
 
-      - name: Check if latest_deployed_repos.txt exists
-        id: check-latest-repos
-        run: |
-          if [ -f latest_deployed_repos.txt ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Create summary
         run: |
-          if [ "${{ steps.check-latest-repos.outputs.exists }}" != "true" ]; then
-            echo "No repositories found in latest_deployed_repos.txt"
+          if [ -f latest_deployed_repos.txt ]; then
+            echo "File not found: latest_deployed_repos.txt"
+            echo "## ❌ Deployment failed" > summary.md
             exit 1
           else
             echo "## 🦑 Deployed" > summary.md
