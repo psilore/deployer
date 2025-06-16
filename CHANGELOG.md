@@ -1,3 +1,18 @@
+## [1.2.0](https://github.com/psilore/deployer/compare/v1.1.0...v1.2.0) (2025-06-16)
+
+### :sparkles: New Features
+
+* add batch id ([#11](https://github.com/psilore/deployer/issues/11)) ([6638c0e](https://github.com/psilore/deployer/commit/6638c0ec64347e52632010e95371b1af48bc2ea8))
+* add checkout ([1129bc0](https://github.com/psilore/deployer/commit/1129bc0f1d61d41c9faf440fe441980508868ebc))
+* add docs dispatch ([42c640b](https://github.com/psilore/deployer/commit/42c640b60c1e4607ab5aaa93f99bb053ec3feeb5))
+* add download repo file ([99fff2e](https://github.com/psilore/deployer/commit/99fff2e60ec5afec83a07b1af65ae2509f2c0e39))
+* add id label ([3c84e7e](https://github.com/psilore/deployer/commit/3c84e7e938c39ede6486a5259a70ed5256b966d6))
+* add pr number ([1a08e87](https://github.com/psilore/deployer/commit/1a08e8738f6a0e0b2d0baf04df824aafbf179a08))
+* add pr url ([d41501a](https://github.com/psilore/deployer/commit/d41501a270dd5e876c44f8acb19d1158bf8fb63b))
+* add pr url ([90832e3](https://github.com/psilore/deployer/commit/90832e3739c357ed28bbf1a4136ea802985dce46))
+* add pr url ([3f14820](https://github.com/psilore/deployer/commit/3f148200a5db695dda733de376ce0260e2a2a250))
+* add summary ([15e0492](https://github.com/psilore/deployer/commit/15e049283f5421a2bc4879c353370c684c43bce8))
+
 ## [1.1.0](https://github.com/psilore/deployer/compare/v1.0.0...v1.1.0) (2025-06-15)
 
 ### :sparkles: New Features
